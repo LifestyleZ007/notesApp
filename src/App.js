@@ -1,29 +1,48 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import Header from "./section/header";
 import NotesList from "./section/NotesList";
 import {nanoid} from 'nanoid'
 import Search from "./section/Search";
 
 const App = () => {
-  const [notes, SetNotes] = useState([{
+  const [notes, setNotes] = useState([{
     id: nanoid(),
-    text: 'A note of kings',
+    text: 'This is our first note',
     date: '18/08/23'
   },
   {
     id: nanoid(),
-    text: 'A note of kings2',
+    text: 'Here is our second note',
     date: '19/08/23'
   },
   {
     id: nanoid(),
-    text: 'A note of kings3',
+    text: 'This is the third note',
     date: '20/08/23'
   },
   {
     id: nanoid(),
-    text: 'A note of kings4',
+    text: 'Fourth note goes here',
     date: '21/08/23'
   }])
+
+  const [searchText, setSearchText] = useState('')
+
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(()=>{
+    const savedNotes = JSON.parse(localStorage.getItem('notes-app')
+    );
+
+    if(savedNotes){
+      setNotes(savedNotes)
+    }
+  },[])
+
+  useEffect(()=>{
+    localStorage.setItem('notes-app',
+    JSON.stringify(notes))
+  },[notes]);
 
   const AddNote = (text)=>{
     const date = new Date();
@@ -33,19 +52,27 @@ const App = () => {
       id:nanoid()
     }
     const newNotes = [...notes,newNote];
-    SetNotes(newNotes)
+    setNotes(newNotes)
   }
 
   const deleteNote = (id)=>{
     const newNotes = notes.filter((note)=>note.id  !== id)
-    SetNotes(newNotes)
+    setNotes(newNotes)
   }
 
   return ( 
-    <div className="container">
-      <Search/>
-      <NotesList notes ={notes} handleAddNote ={AddNote} handleDelete ={deleteNote}/>
+    <div className={`${darkMode && 'dark-mode'}`}>
+      <div className="container">
+        <Header handleDarkMode = {setDarkMode}/>
+        <Search handleSearchNote ={setSearchText}/>
+        <NotesList notes ={notes.filter((note)=>
+           note.text.toLowerCase().includes(searchText)
+           )} 
+           handleAddNote ={AddNote} 
+           handleDelete ={deleteNote}/>
+      </div>
     </div>
+
    );
 }
  
